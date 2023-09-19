@@ -1,0 +1,7 @@
+-r prod.in
+coverage==7.3.0
+ipython==8.14.0
+gitlint==0.19.1
+flake8==6.1.0
+flake8-isort==6.0.0
+pip-tools==7.3.0

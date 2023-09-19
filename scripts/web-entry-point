@@ -1,0 +1,9 @@
+#!/bin/bash
+# docker-entrypoint.sh
+
+# Wait for the database to be ready
+/scripts/lib/wait-for-it db:5432 --timeout=60 --strict -- echo "Database is ready!"
+
+# Start your Django application
+./scripts/lib/run-server
+

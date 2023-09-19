@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+docker-compose stop web celery celery_beat
+./scripts/cmd db dropdb unation
+./scripts/cmd db createdb unation
+./scripts/cmd db bash -c "cd /opt/unation; psql -d unation -f $1"
+./scripts/run

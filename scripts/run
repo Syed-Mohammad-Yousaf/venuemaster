@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+
+docker-compose build
+docker-compose up -d --remove-orphans
+
+docker-compose exec  web ./manage.py migrate
+
+echo "You can access web app at http://localhost:8000."

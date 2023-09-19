@@ -1,0 +1,87 @@
+version: '3.8'
+services:
+  db:
+    image: postgis/postgis
+    env_file:
+      - ./.env
+    volumes:
+      - .:/opt/venuemaster
+    ports:
+      - 5432:5432
+
+  cache:
+    image: memcached:1.6.6-alpine
+  
+  mongo:
+    image: mongo
+    volumes:
+      - .:/opt/venuemaster
+
+  web:
+    build:
+      context: .
+      target: dev
+    container_name: venuemaster_api_dev
+    command: ./scripts/lib/run-server
+    volumes:
+      - .:/opt/venuemaster
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - graphite
+      - celery
+      - cache
+
+  graphite:
+    image: graphiteapp/graphite-statsd
+    ports:
+      - 8080:8080
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    depends_on:
+      - graphite
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - 5462:5462
+      - 15672:15672
+  celery:
+    build:
+      context: .
+      target: dev
+    env_file:
+      ./.env
+    command: ./scripts/lib/run-queue default
+    depends_on:
+      - db
+      - rabbitmq
+
+  celery_beat:
+    build:
+      context: .
+      target: dev
+    env_file:
+      ./.env
+    command: ./scripts/lib/run-celery-beat
+    depends_on:
+      - celery
+    tmpfs: /tmp
+
+  flower:
+    build:
+      context: .
+      target: dev
+    env_file:
+      ./.env
+    command: celery -A venuemaster.celery flower
+    depends_on:
+      - celery
+    ports:
+      - 5555:5555

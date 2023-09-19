@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+gunicorn -w $1 --worker-tmp-dir /dev/shm udata_backend.wsgi:application --bind unix:/dev/shm/gunicorn.sock
